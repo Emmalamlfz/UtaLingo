@@ -34,11 +34,11 @@ export default function CategoryFilter({
   onArtistChange,
 }: CategoryFilterProps) {
   return (
-    <div className="space-y-4">
-      {/* Level Filter */}
+    <div className="space-y-5">
+      {/* Level */}
       <div>
-        <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-          日本語レベル
+        <label className="mb-2 block text-xs font-black uppercase tracking-widest text-white/40">
+          レベル
         </label>
         <div className="flex flex-wrap gap-2">
           {levels.map((level) => (
@@ -46,21 +46,21 @@ export default function CategoryFilter({
               key={level}
               onClick={() => onLevelChange(level)}
               data-testid={`filter-level-${level}`}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-[2rem] px-4 py-2 text-xs font-black transition-all duration-200 ${
                 selectedLevel === level
-                  ? "bg-violet-600 text-white shadow-sm"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                  ? "bg-lemon text-dark shadow-md shadow-lemon/30 scale-105"
+                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
               }`}
             >
-              {level === "all" ? "全て" : level}
+              {level === "all" ? "ALL" : level}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Genre Filter */}
+      {/* Genre */}
       <div>
-        <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+        <label className="mb-2 block text-xs font-black uppercase tracking-widest text-white/40">
           ジャンル
         </label>
         <div className="flex flex-wrap gap-2">
@@ -69,32 +69,38 @@ export default function CategoryFilter({
               key={genre}
               onClick={() => onGenreChange(genre)}
               data-testid={`filter-genre-${genre}`}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-[2rem] px-4 py-2 text-xs font-black transition-all duration-200 ${
                 selectedGenre === genre
-                  ? "bg-violet-600 text-white shadow-sm"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                  ? "bg-lemon text-dark shadow-md shadow-lemon/30 scale-105"
+                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
               }`}
             >
-              {genre === "all" ? "全て" : genre}
+              {genre === "all" ? "ALL" : genre}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Artist Filter */}
+      {/* Artist */}
       <div>
-        <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+        <label className="mb-2 block text-xs font-black uppercase tracking-widest text-white/40">
           アーティスト
         </label>
         <select
           value={selectedArtist}
           onChange={(e) => onArtistChange(e.target.value)}
           data-testid="filter-artist"
-          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+          className="w-full rounded-[2rem] border-2 border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-white outline-none transition-all focus:border-lemon focus:ring-2 focus:ring-lemon/30"
         >
-          <option value="all">全てのアーティスト</option>
+          <option value="all" className="bg-magenta-dark text-white">
+            全てのアーティスト
+          </option>
           {artists.map((artist) => (
-            <option key={artist} value={artist}>
+            <option
+              key={artist}
+              value={artist}
+              className="bg-magenta-dark text-white"
+            >
               {artist}
             </option>
           ))}

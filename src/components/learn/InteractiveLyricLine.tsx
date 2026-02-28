@@ -46,10 +46,8 @@ export default function InteractiveLyricLine({
   return (
     <p
       ref={containerRef}
-      className={`text-lg font-medium leading-relaxed ${
-        isActive
-          ? "text-violet-700 dark:text-violet-400"
-          : "text-zinc-800 dark:text-zinc-200"
+      className={`text-lg font-bold leading-relaxed ${
+        isActive ? "text-lemon" : "text-white"
       }`}
     >
       {tokens.map((token, i) => {
@@ -68,11 +66,11 @@ export default function InteractiveLyricLine({
             key={i}
             onClick={(e) => handleClick(token, e)}
             data-testid={`word-${token.surface_form}-${i}`}
-            className={`inline cursor-pointer rounded-md px-0.5 transition-all duration-150 ${
+            className={`inline cursor-pointer rounded-lg px-0.5 transition-all duration-150 ${
               isActive
-                ? "hover:bg-violet-100 hover:text-violet-900 dark:hover:bg-violet-800/40 dark:hover:text-violet-300"
-                : "hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-900/20 dark:hover:text-violet-400"
-            } decoration-violet-300 decoration-dotted underline-offset-4 hover:underline`}
+                ? "hover:bg-lemon/20 hover:text-white"
+                : "hover:bg-lemon/10 hover:text-lemon"
+            } decoration-lemon/40 decoration-dotted underline-offset-4 hover:underline`}
           >
             {token.surface_form}
           </span>

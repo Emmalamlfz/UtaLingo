@@ -8,31 +8,31 @@ interface NavigationProps {
 }
 
 const tabs: { id: TabId; label: string; icon: string }[] = [
-  { id: "discover", label: "曲単推薦", icon: "🎵" },
+  { id: "discover", label: "発見", icon: "🎵" },
   { id: "learn", label: "学習", icon: "📖" },
   { id: "review", label: "復習", icon: "🔄" },
 ];
 
 export default function Navigation({ activeTab, onTabChange }: NavigationProps) {
   return (
-    <nav className="sticky top-0 z-50 border-b border-zinc-200/60 bg-white/80 backdrop-blur-xl dark:border-zinc-800/60 dark:bg-zinc-950/80">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+    <nav className="sticky top-0 z-50 bg-magenta-dark/80 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🎵</span>
-          <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <span className="text-3xl">🎤</span>
+          <h1 className="text-2xl font-black tracking-tight text-lemon">
             UtaLingo
           </h1>
         </div>
-        <div className="flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
+        <div className="flex gap-2 rounded-[2rem] bg-dark/30 p-1.5">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               data-testid={`tab-${tab.id}`}
-              className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-[1.5rem] px-5 py-2.5 text-sm font-extrabold transition-all duration-200 ${
                 activeTab === tab.id
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-50"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  ? "bg-lemon text-dark shadow-lg shadow-lemon/30 pop-in"
+                  : "text-white/70 hover:text-white hover:bg-white/10"
               }`}
             >
               <span className="text-base">{tab.icon}</span>

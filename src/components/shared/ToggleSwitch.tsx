@@ -26,24 +26,26 @@ export default function ToggleSwitch({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         data-testid={testId ? `${testId}-btn` : undefined}
-        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 ${
+        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lemon focus-visible:ring-offset-2 ${
           checked
-            ? "bg-violet-600"
-            : "bg-zinc-200 dark:bg-zinc-600"
+            ? "bg-lemon shadow-md shadow-lemon/30"
+            : "bg-white/20"
         }`}
       >
         <span
-          className={`pointer-events-none inline-block h-4.5 w-4.5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out ${
-            checked ? "translate-x-5.5" : "translate-x-0.5"
+          className={`pointer-events-none inline-block h-5 w-5 rounded-full shadow-sm ring-0 transition-transform duration-200 ease-in-out ${
+            checked
+              ? "translate-x-6 bg-dark"
+              : "translate-x-1 bg-white/60"
           }`}
         />
       </button>
       <div className="leading-tight">
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <span className="text-sm font-extrabold text-white">
           {label}
         </span>
         {sublabel && (
-          <span className="ml-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
+          <span className="ml-1.5 text-[11px] font-bold text-white/40">
             {sublabel}
           </span>
         )}

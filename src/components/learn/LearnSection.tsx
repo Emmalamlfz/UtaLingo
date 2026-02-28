@@ -6,6 +6,7 @@ import SearchBar from "./SearchBar";
 import MusicPlayer from "./MusicPlayer";
 import LyricsDisplay from "./LyricsDisplay";
 import NotebookPreview from "./NotebookPreview";
+import { BlobWink } from "@/components/shared/Blobs";
 
 interface LearnSectionProps {
   song: Song | null;
@@ -28,7 +29,6 @@ export default function LearnSection({ song, onWordSaved }: LearnSectionProps) {
         id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         mastered: false,
       };
-
       setSavedWords((prev) => new Set([...prev, item.word]));
       setAddedWords((prev) => [...prev, newItem]);
       onWordSaved?.(newItem);
@@ -40,13 +40,13 @@ export default function LearnSection({ song, onWordSaved }: LearnSectionProps) {
     return (
       <div data-testid="learn-section" className="space-y-6">
         <SearchBar onSearch={handleSearch} />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 py-24 dark:border-zinc-700">
-          <span className="text-5xl">🎧</span>
-          <p className="mt-4 text-lg font-medium text-zinc-400">
-            曲を選んで学習を始めましょう
+        <div className="flex flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed border-white/20 py-24">
+          <BlobWink className="blob-float mb-4 h-24 w-24 text-lemon/50" />
+          <p className="text-xl font-black text-white/60">
+            曲を選んで学習スタート！
           </p>
-          <p className="mt-1 text-sm text-zinc-400">
-            「曲単推薦」タブから曲を選択するか、リンクを貼り付けてください
+          <p className="mt-2 text-sm font-bold text-white/30">
+            「発見」タブから曲を選ぼう 🎵
           </p>
         </div>
       </div>
@@ -57,25 +57,14 @@ export default function LearnSection({ song, onWordSaved }: LearnSectionProps) {
 
   return (
     <div data-testid="learn-section" className="space-y-5">
-      {/* Search */}
       <SearchBar onSearch={handleSearch} />
-
-      {/* Player */}
-      <MusicPlayer
-        song={song}
-        currentTime={currentTime}
-        onTimeChange={setCurrentTime}
-      />
-
-      {/* Lyrics */}
+      <MusicPlayer song={song} currentTime={currentTime} onTimeChange={setCurrentTime} />
       <LyricsDisplay
         lyrics={song.lyrics}
         currentTime={currentTime}
         onAddToVocabulary={handleAddToVocabulary}
         savedWords={savedWords}
       />
-
-      {/* Notebook */}
       <NotebookPreview
         vocabulary={allVocabulary}
         grammar={song.grammar}
