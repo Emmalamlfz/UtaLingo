@@ -120,7 +120,7 @@ describe("Home Page", () => {
     expect(screen.getByText("dream")).toBeInTheDocument();
   });
 
-  it("shows lyrics toggles in Learn section", async () => {
+  it("shows lyrics toggle switches in Learn section", async () => {
     const user = userEvent.setup();
     render(<Home />);
 
@@ -128,6 +128,12 @@ describe("Home Page", () => {
     expect(screen.getByTestId("toggle-furigana")).toBeInTheDocument();
     expect(screen.getByTestId("toggle-romaji")).toBeInTheDocument();
     expect(screen.getByTestId("toggle-translation")).toBeInTheDocument();
+
+    const furiganaBtn = screen.getByTestId("toggle-furigana-btn");
+    expect(furiganaBtn).toHaveAttribute("aria-checked", "false");
+
+    await user.click(furiganaBtn);
+    expect(furiganaBtn).toHaveAttribute("aria-checked", "true");
   });
 
   it("switches notebook tabs between vocabulary, grammar, sentences", async () => {

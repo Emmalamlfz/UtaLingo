@@ -5,6 +5,7 @@ import type { LyricLine, WordToken, VocabularyItem } from "@/types";
 import { useTokenizer } from "@/hooks/useTokenizer";
 import InteractiveLyricLine from "./InteractiveLyricLine";
 import WordPopover from "./WordPopover";
+import ToggleSwitch from "@/components/shared/ToggleSwitch";
 
 interface LyricsDisplayProps {
   lyrics: LyricLine[];
@@ -53,8 +54,10 @@ export default function LyricsDisplay({
       data-testid="lyrics-display"
       className="relative rounded-2xl border border-zinc-200/60 bg-white dark:border-zinc-700/60 dark:bg-zinc-800/50"
     >
-      <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-3 dark:border-zinc-700/60">
-        <div className="flex items-center gap-2">
+      {/* Header with toggle switches */}
+      <div className="border-b border-zinc-100 px-6 py-3 dark:border-zinc-700/60">
+        {/* Title row */}
+        <div className="mb-3 flex items-center gap-2">
           <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
             歌詞
           </h3>
@@ -88,45 +91,34 @@ export default function LyricsDisplay({
             </span>
           )}
         </div>
-        <div className="flex gap-2">
-          {(
-            [
-              {
-                key: "furigana",
-                label: "振り仮名",
-                state: showFurigana,
-                toggle: setShowFurigana,
-              },
-              {
-                key: "romaji",
-                label: "ローマ字",
-                state: showRomaji,
-                toggle: setShowRomaji,
-              },
-              {
-                key: "translation",
-                label: "翻訳",
-                state: showTranslation,
-                toggle: setShowTranslation,
-              },
-            ] as const
-          ).map(({ key, label, state, toggle }) => (
-            <button
-              key={key}
-              onClick={() => toggle(!state)}
-              data-testid={`toggle-${key}`}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all ${
-                state
-                  ? "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400"
-                  : "bg-zinc-100 text-zinc-400 dark:bg-zinc-700 dark:text-zinc-500"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+
+        {/* Toggle switch group */}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <ToggleSwitch
+            checked={showFurigana}
+            onChange={setShowFurigana}
+            label="振り仮名"
+            sublabel="Furigana"
+            testId="toggle-furigana"
+          />
+          <ToggleSwitch
+            checked={showRomaji}
+            onChange={setShowRomaji}
+            label="ローマ字"
+            sublabel="Romaji"
+            testId="toggle-romaji"
+          />
+          <ToggleSwitch
+            checked={showTranslation}
+            onChange={setShowTranslation}
+            label="翻訳"
+            sublabel="Translation"
+            testId="toggle-translation"
+          />
         </div>
       </div>
 
+      {/* Lyrics body */}
       <div className="max-h-96 space-y-1 overflow-y-auto px-6 py-4">
         {lyrics.map((line) => {
           const isActive = activeLine?.id === line.id;
@@ -136,16 +128,16 @@ export default function LyricsDisplay({
             <div
               key={line.id}
               data-testid={`lyric-${line.id}`}
-              className={`rounded-xl px-4 py-3 transition-all ${
+              className={`rounded-xl px-4 py-3 transition-all duration-200 ${
                 isActive
                   ? "bg-violet-50 ring-1 ring-violet-200 dark:bg-violet-900/20 dark:ring-violet-700"
                   : "hover:bg-zinc-50 dark:hover:bg-zinc-800"
               }`}
             >
-              {/* Japanese text - interactive when tokenized, plain otherwise */}
+              {/* Main Japanese line – always rendered; content depends on furigana toggle */}
               {showFurigana ? (
                 <p
-                  className={`text-lg font-medium ${
+                  className={`text-lg font-medium leading-relaxed transition-colors duration-200 ${
                     isActive
                       ? "text-violet-700 dark:text-violet-400"
                       : "text-zinc-800 dark:text-zinc-200"
@@ -161,7 +153,7 @@ export default function LyricsDisplay({
                 />
               ) : (
                 <p
-                  className={`text-lg font-medium ${
+                  className={`text-lg font-medium leading-relaxed transition-colors duration-200 ${
                     isActive
                       ? "text-violet-700 dark:text-violet-400"
                       : "text-zinc-800 dark:text-zinc-200"
@@ -171,16 +163,23 @@ export default function LyricsDisplay({
                 </p>
               )}
 
-              {showRomaji && (
+              {/* Romaji – animated collapse */}
+              <div
+                className={`lyric-row-collapse ${showRomaji ? "open" : ""}`}
+              >
                 <p className="mt-0.5 text-sm italic text-pink-500 dark:text-pink-400">
                   {line.romaji}
                 </p>
-              )}
-              {showTranslation && (
+              </div>
+
+              {/* Translation – animated collapse */}
+              <div
+                className={`lyric-row-collapse ${showTranslation ? "open" : ""}`}
+              >
                 <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
                   {line.english}
                 </p>
-              )}
+              </div>
             </div>
           );
         })}
