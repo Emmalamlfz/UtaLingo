@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Song } from "@/types";
+import { useState, useCallback } from "react";
+import type { Song, VocabularyItem } from "@/types";
 import SearchBar from "./SearchBar";
 import MusicPlayer from "./MusicPlayer";
 import LyricsDisplay from "./LyricsDisplay";
@@ -9,14 +9,32 @@ import NotebookPreview from "./NotebookPreview";
 
 interface LearnSectionProps {
   song: Song | null;
+  onWordSaved?: (item: VocabularyItem) => void;
 }
 
-export default function LearnSection({ song }: LearnSectionProps) {
+export default function LearnSection({ song, onWordSaved }: LearnSectionProps) {
   const [currentTime, setCurrentTime] = useState(0);
+  const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
+  const [addedWords, setAddedWords] = useState<VocabularyItem[]>([]);
 
   const handleSearch = (query: string) => {
     console.log("Search:", query);
   };
+
+  const handleAddToVocabulary = useCallback(
+    (item: Omit<VocabularyItem, "id" | "mastered">) => {
+      const newItem: VocabularyItem = {
+        ...item,
+        id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        mastered: false,
+      };
+
+      setSavedWords((prev) => new Set([...prev, item.word]));
+      setAddedWords((prev) => [...prev, newItem]);
+      onWordSaved?.(newItem);
+    },
+    [onWordSaved]
+  );
 
   if (!song) {
     return (
@@ -35,6 +53,8 @@ export default function LearnSection({ song }: LearnSectionProps) {
     );
   }
 
+  const allVocabulary = [...song.vocabulary, ...addedWords];
+
   return (
     <div data-testid="learn-section" className="space-y-5">
       {/* Search */}
@@ -48,11 +68,16 @@ export default function LearnSection({ song }: LearnSectionProps) {
       />
 
       {/* Lyrics */}
-      <LyricsDisplay lyrics={song.lyrics} currentTime={currentTime} />
+      <LyricsDisplay
+        lyrics={song.lyrics}
+        currentTime={currentTime}
+        onAddToVocabulary={handleAddToVocabulary}
+        savedWords={savedWords}
+      />
 
       {/* Notebook */}
       <NotebookPreview
-        vocabulary={song.vocabulary}
+        vocabulary={allVocabulary}
         grammar={song.grammar}
         sentences={song.sentences}
       />

@@ -1,7 +1,52 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import Home from "./page";
+import type { WordToken } from "@/types";
+
+const mockTokens: Record<string, WordToken[]> = {
+  "夢ならばどれほどよかったでしょう": [
+    { surface_form: "夢", pos: "名詞", pos_detail: "一般", basic_form: "夢", reading: "ユメ", pronunciation: "ユメ" },
+    { surface_form: "なら", pos: "助詞", pos_detail: "接続助詞", basic_form: "なら", reading: "ナラ", pronunciation: "ナラ" },
+    { surface_form: "ば", pos: "助詞", pos_detail: "接続助詞", basic_form: "ば", reading: "バ", pronunciation: "バ" },
+    { surface_form: "どれほど", pos: "副詞", pos_detail: "一般", basic_form: "どれほど", reading: "ドレホド", pronunciation: "ドレホド" },
+    { surface_form: "よかっ", pos: "形容詞", pos_detail: "自立", basic_form: "よい", reading: "ヨカッ", pronunciation: "ヨカッ" },
+    { surface_form: "た", pos: "助動詞", pos_detail: "", basic_form: "た", reading: "タ", pronunciation: "タ" },
+    { surface_form: "でしょ", pos: "助動詞", pos_detail: "", basic_form: "でしょう", reading: "デショ", pronunciation: "デショ" },
+    { surface_form: "う", pos: "助動詞", pos_detail: "", basic_form: "う", reading: "ウ", pronunciation: "ウ" },
+  ],
+};
+
+function createFallbackTokens(text: string): WordToken[] {
+  return [{ surface_form: text, pos: "", pos_detail: "", basic_form: text, reading: "", pronunciation: "" }];
+}
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+  globalThis.fetch = vi.fn(
+    (input: string | URL | Request, init?: RequestInit) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+      if (url.includes("/api/tokenize")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => {
+            const rawBody =
+              init?.body ?? (input instanceof Request ? await input.text() : "{}");
+            const bodyStr = typeof rawBody === "string" ? rawBody : "{}";
+            const { text } = JSON.parse(bodyStr);
+            return { tokens: mockTokens[text] ?? createFallbackTokens(text) };
+          },
+        } as Response);
+      }
+      return Promise.reject(new Error("Not mocked"));
+    }
+  );
+});
 
 describe("Home Page", () => {
   it("renders the UtaLingo navigation", () => {
@@ -99,5 +144,50 @@ describe("Home Page", () => {
     expect(
       within(notebook).getByText("〜ならば (conditional)")
     ).toBeInTheDocument();
+  });
+
+  it("tokenizes lyrics and renders clickable words after loading", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("word-夢-0")).toBeInTheDocument();
+    });
+  });
+
+  it("opens word popover when clicking a tokenized word", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("word-夢-0")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId("word-夢-0"));
+
+    expect(screen.getByTestId("word-popover")).toBeInTheDocument();
+    expect(screen.getByText("梦；梦想")).toBeInTheDocument();
+    expect(screen.getByTestId("add-to-vocabulary")).toBeInTheDocument();
+  });
+
+  it("closes popover on Escape key", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("word-夢-0")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId("word-夢-0"));
+    expect(screen.getByTestId("word-popover")).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByTestId("word-popover")).not.toBeInTheDocument();
   });
 });

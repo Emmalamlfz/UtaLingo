@@ -63,4 +63,24 @@ export interface SentencePattern {
   mastered: boolean;
 }
 
+export interface WordToken {
+  surface_form: string;
+  pos: string;
+  pos_detail: string;
+  basic_form: string;
+  reading: string;
+  pronunciation: string;
+}
+
+export interface DictionaryEntry {
+  word: string;
+  reading: string;
+  pos: string;
+  baseForm: string;
+  meaning: string;
+  detail: string;
+  level?: JLPTLevel;
+  examples?: string[];
+}
+
 export type TabId = "discover" | "learn" | "review";
