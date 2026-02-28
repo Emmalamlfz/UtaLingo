@@ -23,6 +23,8 @@ function createFallbackTokens(text: string): WordToken[] {
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  localStorage.clear();
+
   globalThis.fetch = vi.fn(
     (input: string | URL | Request, init?: RequestInit) => {
       const url =
@@ -147,9 +149,7 @@ describe("Home Page", () => {
     expect(within(notebook).getByText("〜ならば")).toBeInTheDocument();
 
     await user.click(within(notebook).getByTestId("notebook-tab-sentences"));
-    expect(
-      within(notebook).getByText("〜ならば (conditional)")
-    ).toBeInTheDocument();
+    expect(within(notebook).getByText("〜ならば (conditional)")).toBeInTheDocument();
   });
 
   it("tokenizes lyrics and renders clickable words after loading", async () => {
@@ -195,5 +195,101 @@ describe("Home Page", () => {
 
     await user.keyboard("{Escape}");
     expect(screen.queryByTestId("word-popover")).not.toBeInTheDocument();
+  });
+});
+
+describe("Smart Wordbook with LocalStorage", () => {
+  it("adds a word to the smart wordbook via popover and persists to localStorage", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("word-夢-0")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId("word-夢-0"));
+    await user.click(screen.getByTestId("add-to-vocabulary"));
+
+    expect(screen.getByText("已在生词本中")).toBeInTheDocument();
+
+    const wordbook = screen.getByTestId("smart-wordbook");
+    expect(wordbook).toBeInTheDocument();
+    expect(within(wordbook).getByText("夢")).toBeInTheDocument();
+
+    const stored = JSON.parse(localStorage.getItem("utalingo-wordbook") ?? "[]");
+    expect(stored).toHaveLength(1);
+    expect(stored[0].word).toBe("夢");
+    expect(stored[0].mastered).toBe(false);
+  });
+
+  it("marks a word as mastered with strikethrough and persists state", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("word-夢-0")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId("word-夢-0"));
+    await user.click(screen.getByTestId("add-to-vocabulary"));
+    await user.keyboard("{Escape}");
+
+    const wordbook = screen.getByTestId("smart-wordbook");
+    const rows = within(wordbook).getAllByTestId(/^wordbook-row-/);
+    const checkBtn = within(rows[0]).getByTestId(/^wordbook-check-/);
+
+    await user.click(checkBtn);
+
+    const stored = JSON.parse(localStorage.getItem("utalingo-wordbook") ?? "[]");
+    expect(stored[0].mastered).toBe(true);
+  });
+
+  it("removes a word from the wordbook", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("word-夢-0")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId("word-夢-0"));
+    await user.click(screen.getByTestId("add-to-vocabulary"));
+    await user.keyboard("{Escape}");
+
+    const wordbook = screen.getByTestId("smart-wordbook");
+    const rows = within(wordbook).getAllByTestId(/^wordbook-row-/);
+    const removeBtn = within(rows[0]).getByTestId(/^wordbook-remove-/);
+
+    await user.click(removeBtn);
+
+    const stored = JSON.parse(localStorage.getItem("utalingo-wordbook") ?? "[]");
+    expect(stored).toHaveLength(0);
+  });
+
+  it("loads words from localStorage on page mount", async () => {
+    localStorage.setItem(
+      "utalingo-wordbook",
+      JSON.stringify([
+        { id: "persist-1", word: "猫", reading: "ねこ", meaning: "猫", level: "N5", partOfSpeech: "名詞", example: "猫", mastered: true },
+        { id: "persist-2", word: "犬", reading: "いぬ", meaning: "狗", level: "N5", partOfSpeech: "名詞", example: "犬", mastered: false },
+      ])
+    );
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByTestId("song-card-1"));
+
+    const wordbook = screen.getByTestId("smart-wordbook");
+    expect(within(wordbook).getByTestId("wordbook-row-persist-1")).toBeInTheDocument();
+    expect(within(wordbook).getByTestId("wordbook-row-persist-2")).toBeInTheDocument();
+    expect(within(wordbook).getByText("犬")).toBeInTheDocument();
+    expect(within(wordbook).getByText("ねこ")).toBeInTheDocument();
   });
 });

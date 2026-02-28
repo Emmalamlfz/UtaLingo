@@ -6,10 +6,12 @@ import Navigation from "@/components/shared/Navigation";
 import DiscoverSection from "@/components/discover/DiscoverSection";
 import LearnSection from "@/components/learn/LearnSection";
 import ReviewSection from "@/components/review/ReviewSection";
+import { useVocabularyStore } from "@/hooks/useVocabularyStore";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("discover");
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const vocabStore = useVocabularyStore();
 
   const handleSongSelect = (song: Song) => {
     setSelectedSong(song);
@@ -24,7 +26,9 @@ export default function Home() {
         {activeTab === "discover" && (
           <DiscoverSection onSongSelect={handleSongSelect} />
         )}
-        {activeTab === "learn" && <LearnSection song={selectedSong} />}
+        {activeTab === "learn" && (
+          <LearnSection song={selectedSong} vocabStore={vocabStore} />
+        )}
         {activeTab === "review" && <ReviewSection />}
       </main>
     </div>
